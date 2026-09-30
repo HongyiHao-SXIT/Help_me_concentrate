@@ -1,0 +1,15 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -O2
+LDFLAGS = 
+SRC = main.c
+OBJ = $(SRC:.c=.o)
+
+all: main
+
+main: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+clean:
+	rm -f $(OBJ) main
+
+.PHONY: all clean 
