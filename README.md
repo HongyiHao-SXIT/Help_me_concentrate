@@ -14,6 +14,17 @@ make
 
 Press `Ctrl+C` to end a session early and see the summary.
 
+## Track your progress
+
+Every session longer than a minute is saved to `~/.help_me_concentrate/history.csv` (set `FOCUS_HISTORY` to use another file).
+
+```sh
+./focus stats                  # today, last 7 days, all time, streak, recent sessions
+python3 src/ana/analyze.py     # which hours and weekdays you focus best
+```
+
+Your **streak** counts the days in a row on which you finished at least one session.
+
 ## Example output
 
 ```
@@ -40,5 +51,7 @@ Edit the `rules` table in [src/focus/classify.c](src/focus/classify.c) to choose
 
 - `src/main.c`: focus session loop, notifications and summary
 - `src/focus/classify.c`: app-to-category rules
+- `src/focus/history.c`: saving sessions and the `stats` command
+- `src/ana/analyze.py`: best-time-to-focus analysis of your history
 - `src/proc_monitor/process_read.c`: reads the frontmost app and running processes on macOS
 - `include/`: headers

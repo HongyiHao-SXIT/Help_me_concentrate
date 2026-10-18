@@ -6,11 +6,13 @@
 #include <unistd.h>
 
 #include "focus/classify.h"
+#include "focus/history.h"
 #include "proc_monitor/process_read.h"
 
 #define POLL_SECONDS 2
 #define DISTRACTION_GRACE_SECONDS 30
 #define DEFAULT_FOCUS_MINUTES 25
+#define MIN_SAVED_SECONDS 60
 
 static volatile sig_atomic_t stop_requested = 0;
 
@@ -57,6 +59,8 @@ static void usage(const char *prog)
     printf("Usage: %s [minutes]\n", prog);
     printf("  Start a focus session (default %d minutes). Press Ctrl+C to stop early.\n",
            DEFAULT_FOCUS_MINUTES);
+    printf("Usage: %s stats\n", prog);
+    printf("  Show your focus history, streak and recent sessions.\n");
 }
 
 int main(int argc, char *argv[])
@@ -67,6 +71,8 @@ int main(int argc, char *argv[])
             usage(argv[0]);
             return 0;
         }
+        if (strcmp(argv[1], "stats") == 0)
+            return history_print_stats() == 0 ? 0 : 1;
         minutes = atoi(argv[1]);
         if (minutes <= 0) {
             usage(argv[0]);
@@ -124,6 +130,23 @@ int main(int argc, char *argv[])
     if (!stop_requested)
         notify("Help me concentrate", "Focus session complete. Take a short break!");
 
-    print_summary(totals, (long)(time(NULL) - start), distractions);
+    long elapsed = (long)(time(NULL) - start);
+    print_summary(totals, elapsed, distractions);
+
+    if (elapsed < MIN_SAVED_SECONDS) {
+        printf("\nSession shorter than %d seconds, not saved.\n", MIN_SAVED_SECONDS);
+        return 0;
+    }
+
+    struct Session session = {
+        .start = start,
+        .planned_minutes = minutes,
+        .elapsed = elapsed,
+        .distractions = distractions,
+        .completed = !stop_requested,
+    };
+    memcpy(session.totals, totals, sizeof(totals));
+    if (history_append(&session) == 0)
+        printf("\nSaved. Run '%s stats' to see your progress.\n", argv[0]);
     return 0;
 }
