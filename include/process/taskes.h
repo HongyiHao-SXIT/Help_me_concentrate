@@ -1,3 +1,6 @@
+#ifndef TASKES_H
+#define TASKES_H
+
 #include "enum/Task_type.h"
 #include <time.h>
 #include <sys/types.h>
@@ -13,3 +16,5 @@ struct Tasks
     time_t start_task_time;
     time_t end_task_time;
 };
+
+#endif

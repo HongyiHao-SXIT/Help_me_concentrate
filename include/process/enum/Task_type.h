@@ -1,3 +1,6 @@
+#ifndef TASK_TYPE_H
+#define TASK_TYPE_H
+
 enum TaskType
 {
     Learning,
@@ -5,4 +8,9 @@ enum TaskType
     Relax,
     Work,
     Other,
+    TASK_TYPE_COUNT,
 };
+
+const char *task_type_name(enum TaskType type);
+
+#endif
