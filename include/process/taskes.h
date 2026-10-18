@@ -1,9 +1,11 @@
 #include "enum/Task_type.h"
 #include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-struct Task
+struct Tasks
 {
-    int id;
+    pid_t pid;
     char task_name[256];
     enum TaskType task_type;
     time_t total_task_time;

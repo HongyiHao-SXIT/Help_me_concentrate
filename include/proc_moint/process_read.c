@@ -1,12 +1,19 @@
-#include <windows.h>
-#include <tlhelp32.h>
-#include <pdh.h>
+#include <stdio.h>
+#include <string.h>
+#include <libproc.h>
 
-HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-PROCESSENTRY32 pe32;
-pe32.dwSize = sizeof(PROCESSENTRY32);
-Process32First(hSnap, &pe32);
-do
-{
-    printf("%s (PID: %d)\n", pe32.szExeFile, pe32.th32ProcessID);
-} while (Process32Next(hSnap, &pe32));
+int main(void) {
+    pid_t pids[4096];
+    int bytes = proc_listpids(PROC_ALL_PIDS, 0, pids, sizeof(pids));
+    int count = bytes / sizeof(pid_t);
+
+    char path[PROC_PIDPATHINFO_MAXSIZE];
+    for (int i = 0; i < count; i++) {
+        if (pids[i] == 0) continue;
+        if (proc_pidpath(pids[i], path, sizeof(path)) > 0) {
+            if (strstr(path, "Safari"))
+                printf("%d  %s\n", pids[i], path);
+        }
+    }
+    return 0;
+}
